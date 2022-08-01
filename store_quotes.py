@@ -1,6 +1,5 @@
 import json
 import sqlite3
-from textwrap import indent
 file = open('./quotes.json','r')
 
 quotes_data_dict = json.load(file) 
@@ -20,7 +19,6 @@ def create_tables():
 
 drop_tables()
 create_tables()
-
 
 
 def insert_to_quote_table(quote_id, quote, author):
@@ -53,15 +51,6 @@ for author_dict in quotes_data_dict['authors']:
     reference =  author_dict['reference']
     insert_to_author(name,born,reference)
 
-
-
-cursor.execute('''select * from quote''')
-def getAuthorDetails():
-    print(f"AuthorId\tName\tBorn\treference" )
-    for each in cursor.fetchall():
-        print(each)
-
-getAuthorDetails()
 
 connection.commit()
 connection.close

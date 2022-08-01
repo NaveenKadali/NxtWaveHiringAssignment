@@ -1,13 +1,9 @@
-#from email.quoprimime import quote
-#from re import A, L
-#from typing import Container
 import lxml
 import json
-#from pytest import console_main
+
 import requests
 from time import sleep
 from bs4 import BeautifulSoup
-
 
 def getTagNames(tag_elements):
     tagNames = []
@@ -28,7 +24,6 @@ def getAuthorDetailsDictionary(author_href):
     reference = response.url
     return { 'name':Author_name, 'born':born, 'reference':reference}
 
-
 def getQuoteDictionary(quoteContainer):
     quote = quote_container.select_one('div .text').text.strip()
     author = quote_container.select_one('.author').text.strip()
@@ -44,7 +39,6 @@ url = "http://quotes.toscrape.com/" # Quotes to Screape url
 quotes_list = list() # Empty list to store quote data
 authors_list = list() # Empty list to store authors data
 
-
 def getQuotes():
     global quote_containers
     global quote_container
@@ -58,6 +52,7 @@ def getQuotes():
             authors_list.append(authorDetailsDictionary)
 
 
+# function to request webcontent for given url
 # function to request webcontent for given url
 def getResponse(url): 
     global response
@@ -78,11 +73,9 @@ def check_for_next_page():
     else:
         return False
 
-
 def saveToFile():
     pass
 
-'''
 while True:
     href = check_for_next_page()
     if href == False:
@@ -90,8 +83,6 @@ while True:
     else:
         getResponse(url+href)
         getQuotes()
-'''
-
 
 quotes_dictionary = {"quotes":quotes_list, 'authors':authors_list}
 json_data = json.dumps(quotes_dictionary, indent=4)
