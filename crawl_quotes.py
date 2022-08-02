@@ -6,17 +6,19 @@ import requests
 from time import sleep
 from bs4 import BeautifulSoup
 
-
+# return a dictionary of author 
 def get_author_details(quote_container):
     about_author_href = quote_container.select_one('a')['href']
     author_url = quotes_page_url.strip('/')+about_author_href
     response = get_response(author_url)
     soup = parse_response_to_text_format(response)
+
     author_name = soup.find('h3',class_='author-title').text.strip()
     born_date = soup.find('span',class_='author-born-date').text.strip()
-    born_place = soup.select_one('span',class_='author-born-location').text.strip()
-    born = born_date +" "+ born_place
+    born_place = soup.find('span',class_='author-born-location').text.strip()
+    born = born_date +" "+ born_place.strip()
     reference = response.url
+
     return { 'name':author_name, 'born':born, 'reference':reference}
 
 def get_tags(tags_container): # this function will return a list of tags
@@ -33,8 +35,6 @@ def get_quote_data(quote_container):
     tags_list = get_tags(tags_container) # function starts at line 22
     return {"quote": quote, "author": author, "tags": tags_list}
 
-
-# Exicution Starts from here
 
 quotes_page_url = "http://quotes.toscrape.com/" # Quotes to Screape url
 quotes_list = list() # Empty list to store quote data
@@ -57,6 +57,7 @@ def save_to_json_file():
     file.close()
 
 
+
 def start_web_crawl(url):
     response = get_response(url)
     soup = parse_response_to_text_format(response)
@@ -74,7 +75,7 @@ def start_web_crawl(url):
         start_web_crawl(next_page_url)
     else:
         save_to_json_file()
-        return False
+        return False 
         
 
 start_web_crawl(quotes_page_url)

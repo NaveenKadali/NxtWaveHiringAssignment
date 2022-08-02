@@ -71,7 +71,6 @@ with open('./quotes.json','r') as json_file:
 
 connection = sqlite3.connect('quote.db')
 cursor = connection.cursor()
-
 create_quote_table()            # function declaration starts at line 5
 create_author_table()           # function declaration starts at line 15
 create_quote_tag_table()        # function declaration starts at line 28
