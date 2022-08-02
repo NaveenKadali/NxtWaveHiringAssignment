@@ -1,10 +1,10 @@
 import json
 import sqlite3
 
-connection = sqlite3.connect('./quote.db')
+connection = sqlite3.connect('./quotes.db')
 cursor = connection.cursor()
 
-# retuns count of quotes in the table
+# retuns total no of quotes in the table
 def get_quotes_count():
     quotes_count_query = """SELECT count(*) FROM quote""" 
     cursor.execute(quotes_count_query) 
@@ -68,4 +68,4 @@ top_n_authors_list = get_top_n_authors(5)
 print(quotes_count)
 print(no_of_quotes_by_author)
 print(min_max_avg_tags)
-print(top_n_authors_list)
+print(top_n_authors_list) 

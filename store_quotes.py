@@ -1,6 +1,9 @@
 import json
 import sqlite3
 
+with open('./quotes.json','r') as json_file:
+    quotes_data = json.load(json_file) 
+
 # creates a quote tabele to maintain quote and author name
 def create_quote_table():
     cursor.execute("""DROP TABLE IF EXISTS quote""") # deletes table if exists
@@ -66,11 +69,9 @@ def insert_into_quote_tag_table():
         quote_id += 1
 
 
-with open('./quotes.json','r') as json_file:
-    quotes_data = json.load(json_file) 
-
-connection = sqlite3.connect('quote.db')
+connection = sqlite3.connect('quotes.db')
 cursor = connection.cursor()
+
 create_quote_table()            # function declaration starts at line 5
 create_author_table()           # function declaration starts at line 15
 create_quote_tag_table()        # function declaration starts at line 28
@@ -80,3 +81,5 @@ insert_into_quote_tag_table()   # function declaration starts at line 59
 
 connection.commit()
 connection.close
+
+print("Organizing data into quuotes.db completed successfully!")
