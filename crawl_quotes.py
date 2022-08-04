@@ -105,7 +105,6 @@ def start_web_crawl(url):
     soup = parse_response_to_text_format(response)
     find_quote_containers_and_call_append_functions(soup)
     print("Scraping {} completed".format(response.url))
-    
     next_page_url = get_next_page_url(soup) 
     if next_page_url != None:
         start_web_crawl(next_page_url)
