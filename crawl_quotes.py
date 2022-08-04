@@ -89,7 +89,7 @@ def find_quote_containers_and_call_append_functions(soup):
         append_author_data_into_authors_list(quote_container)
 
 
-# returns a soup object by parseing the response object to text formart
+# returns a soup object by parseing the response object into text formart
 def parse_response_to_text_format(response):
     soup = BeautifulSoup(response.content, "lxml")
     return soup
@@ -104,8 +104,9 @@ def start_web_crawl(url):
     response = get_response(url)
     soup = parse_response_to_text_format(response)
     find_quote_containers_and_call_append_functions(soup)
-    next_page_url = get_next_page_url(soup) 
     print("Scraping {} completed".format(response.url))
+    
+    next_page_url = get_next_page_url(soup) 
     if next_page_url != None:
         start_web_crawl(next_page_url)
     else:
