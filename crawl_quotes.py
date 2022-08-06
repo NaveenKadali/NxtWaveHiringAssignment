@@ -19,6 +19,17 @@ def save_to_json_file(quotes_list, authors_list):
     file.write(json_data)
     file.close()
 
+# removes special charachters and returns the plane text
+def replace_speacial_chars_with_spaces(text):
+    replaced_text = re.sub("[^\w\s]", " ", text)
+    replaced_text = " ".join(replaced_text.split())
+    return replaced_text
+
+# removes unicode values and returns the text
+def remove_unicodes(text):
+    text = text.encode("ascii","ignore")
+    text = text.decode()
+    return text
 
 # returns next page url if next page available else retuns None
 def get_next_page_url(soup):
@@ -57,18 +68,6 @@ def append_author_data_into_authors_list(quote_container):
     author_dictionary = get_author_dictionary(author_reference_url)
     if author_dictionary not in authors_list :
         authors_list.append(author_dictionary)
-
-
-# removes special charachters and returns the plane text
-def replace_speacial_chars_with_spaces(text):
-    replaced_text = re.sub("[^\w\s]", " ", text)
-    return replaced_text
-
-# removes unicode values and returns the text
-def remove_unicodes(text):
-    text = text.encode("ascii","ignore")
-    text = text.decode()
-    return text
 
 # returns a list of tags of the quote
 def get_tags(tags_container):
