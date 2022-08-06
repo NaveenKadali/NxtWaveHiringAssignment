@@ -1,7 +1,7 @@
-import encodings
-from tokenize import Ignore
+import re
 import lxml
 import json
+import string
 import requests
 from time import sleep
 from bs4 import BeautifulSoup
@@ -18,6 +18,7 @@ def save_to_json_file(quotes_list, authors_list):
     file = open('./quotes.json','w',encoding = 'utf-8')
     file.write(json_data)
     file.close()
+
 
 # returns next page url if next page available else retuns None
 def get_next_page_url(soup):
@@ -36,6 +37,7 @@ def get_author_dictionary(author_reference_url):
     response = get_response(author_reference_url)
     soup = parse_response_to_text_format(response)
     author_name = soup.find('h3',class_='author-title').text.strip()
+    author_name = replace_speacial_chars_with_spaces(author_name)
     born_date = soup.find('span',class_='author-born-date').text.strip()
     born_place = soup.find('span',class_='author-born-location').text.strip()
     born = born_date +" "+ born_place.strip()
@@ -57,6 +59,17 @@ def append_author_data_into_authors_list(quote_container):
         authors_list.append(author_dictionary)
 
 
+# removes special charachters and returns the plane text
+def replace_speacial_chars_with_spaces(text):
+    replaced_text = re.sub("[^\w\s]", " ", text)
+    return replaced_text
+
+# removes unicode values and returns the text
+def remove_unicodes(text):
+    text = text.encode("ascii","ignore")
+    text = text.decode()
+    return text
+
 # returns a list of tags of the quote
 def get_tags(tags_container):
     tags_list = [] 
@@ -68,11 +81,11 @@ def get_tags(tags_container):
 # returns a dictionary of quote, author and tags_list 
 def get_quote_dictionary(quote_container):
     quote = quote_container.select_one('div .text').text.strip()
-    quote = quote.encode("ascii","ignore")
-    quote = quote.decode()
     author = quote_container.select_one('.author').text.strip()
     tags_container = quote_container.select('div .tag')
     tags_list = get_tags(tags_container)
+    quote = remove_unicodes(quote)
+    author = replace_speacial_chars_with_spaces(author)
     quote_dictionary =  {"quote": quote, "author": author, "tags": tags_list}
     return quote_dictionary
 
@@ -99,7 +112,7 @@ def get_response(url):
     response = requests.get(url)
     return response
 
-# web crawling starts by calling this function
+# web crawling starts by calling this function 
 def start_web_crawl(url):
     response = get_response(url)
     soup = parse_response_to_text_format(response)
