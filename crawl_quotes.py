@@ -19,25 +19,12 @@ def save_to_json_file(quotes_list, authors_list):
     file.write(json_data)
     file.close()
 
-# removes special charachters and returns the plane text
-def replace_speacial_chars_with_spaces(text):
-    replaced_text = re.sub("[^\w\s]", " ", text)
-    replaced_text = " ".join(replaced_text.split())
-    return replaced_text
-
-# removes unicode values and returns the text
-def remove_unicodes(text):
-    text = text.encode("ascii","ignore")
-    text = text.decode()
-    return text
-
 # returns next page url if next page available else retuns None
 def get_next_page_url(soup):
     pager_element = soup.find('ul',class_="pager")
     next_page_list_element = pager_element.find('li', class_='next')
     if next_page_list_element != None:
-        next_page_page_anchor_element = next_page_list_element.select_one('a', href=True)
-        next_page_href = next_page_page_anchor_element['href']
+        next_page_href = next_page_list_element.select_one('a', href=True)['href']
         next_page_url = quotes_page_url.strip('/')+next_page_href
         return next_page_url
     else:
@@ -62,12 +49,24 @@ def get_author_reference_url(quote_container):
     author_reference_url = quotes_page_url.strip('/')+author_href    
     return author_reference_url
 
-# gets the author dictionary from get_auhtor_dictionary function and appends it to the authors list
+# gets the author dictionary and appends it to the authors list
 def append_author_data_into_authors_list(quote_container):
     author_reference_url = get_author_reference_url(quote_container)
     author_dictionary = get_author_dictionary(author_reference_url)
     if author_dictionary not in authors_list :
         authors_list.append(author_dictionary)
+
+# removes special charachters and returns the plane text
+def replace_speacial_chars_with_spaces(text):
+    replaced_text = re.sub("[^\w\s]", " ", text)
+    replaced_text = " ".join(replaced_text.split())
+    return replaced_text
+
+# removes unicode values and returns the text
+def remove_unicodes(text):
+    text = text.encode("ascii","ignore")
+    text = text.decode()
+    return text
 
 # returns a list of tags of the quote
 def get_tags(tags_container):
@@ -88,13 +87,13 @@ def get_quote_dictionary(quote_container):
     quote_dictionary =  {"quote": quote, "author": author, "tags": tags_list}
     return quote_dictionary
 
-# gets a dictionary from get_quote_dictionary function and appends it to the quotes list
+# gets a quote dictionary and appends it to the quotes list
 def append_quote_data_into_quotes_list(quote_container):
     quote_dictionary = get_quote_dictionary(quote_container)
     quotes_list.append(quote_dictionary)
 
-# finds all the quote_containers, iterates each container and calls the functions
-def find_quote_containers_and_call_append_functions(soup):
+# iterates over each container and calls the functions
+def iterate_quote_containers_and_call_append_functions(soup):
     quote_containers = soup.find_all('div',class_= 'quote')
     for quote_container in quote_containers:
         append_quote_data_into_quotes_list(quote_container)
@@ -115,7 +114,7 @@ def get_response(url):
 def start_web_crawl(url):
     response = get_response(url)
     soup = parse_response_to_text_format(response)
-    find_quote_containers_and_call_append_functions(soup)
+    iterate_quote_containers_and_call_append_functions(soup)
     print("Scraping {} completed".format(response.url))
     next_page_url = get_next_page_url(soup) 
     if next_page_url != None:
