@@ -29,9 +29,9 @@ def get_author_dictionary(quote_container):
     response = get_response(author_reference_url)
     soup = parse_response_to_text_format(response)
     author_name = soup.find('h3',class_='author-title').text.strip()
-    author_name = replace_speacial_chars_with_spaces(author_name)
     born_date = soup.find('span',class_='author-born-date').text.strip()
     born_place = soup.find('span',class_='author-born-location').text.strip()
+    author_name = replace_speacial_chars_with_spaces(author_name)
     born = born_date +" "+ born_place.strip()
     reference = response.url
     author_dictionary =  { 'name':author_name, 'born':born, 'reference':reference}
@@ -94,10 +94,11 @@ def get_response(url):
     response = requests.get(url)
     return response
 
-def start_scraping():
-    quotes_list = list()
-    authors_list = list()
-    quotes_and_authors_data = list()
+#scrapping starts from this function
+def start_web_scraping():
+    quotes_list = []
+    authors_list = []
+    quotes_and_authors_data = []
     url = "http://quotes.toscrape.com/"
     while url != None:
         response = get_response(url)
@@ -110,6 +111,5 @@ def start_scraping():
             authors_list.append(author_dictionary)
     save_to_json_file(quotes_list, authors_list)
 
-start_scraping()
-
+start_web_scraping()
 print("Scraping completed successfully!")
