@@ -1,15 +1,8 @@
 import re
 import lxml
 import json
-import string
 import requests
-from time import sleep
 from bs4 import BeautifulSoup
-
-quotes_page_url = "http://quotes.toscrape.com/"     # Quotes to Screape url 
-
-quotes_list = list()    # Empty list to store quote data
-authors_list = list()   # Empty list to store authors data
 
 # saves the quetes data (quotes_list and authors_list) into a json file
 def save_to_json_file(quotes_list, authors_list):
@@ -25,13 +18,14 @@ def get_next_page_url(soup):
     next_page_list_element = pager_element.find('li', class_='next')
     if next_page_list_element != None:
         next_page_href = next_page_list_element.select_one('a', href=True)['href']
-        next_page_url = quotes_page_url.strip('/')+next_page_href
+        next_page_url = "http://quotes.toscrape.com"+next_page_href
         return next_page_url
     else:
         return None
 
 # returns a dictionary of author_name, born and reference url
-def get_author_dictionary(author_reference_url):
+def get_author_dictionary(quote_container):
+    author_reference_url = get_author_reference_url(quote_container)
     response = get_response(author_reference_url)
     soup = parse_response_to_text_format(response)
     author_name = soup.find('h3',class_='author-title').text.strip()
@@ -46,15 +40,8 @@ def get_author_dictionary(author_reference_url):
 # returns the author reference urlof that quote
 def get_author_reference_url(quote_container):
     author_href = quote_container.select_one('a')['href']
-    author_reference_url = quotes_page_url.strip('/')+author_href    
+    author_reference_url = "http://quotes.toscrape.com"+author_href    
     return author_reference_url
-
-# gets the author dictionary and appends it to the authors list
-def append_author_data_into_authors_list(quote_container):
-    author_reference_url = get_author_reference_url(quote_container)
-    author_dictionary = get_author_dictionary(author_reference_url)
-    if author_dictionary not in authors_list :
-        authors_list.append(author_dictionary)
 
 # removes special charachters and returns the plane text
 def replace_speacial_chars_with_spaces(text):
@@ -87,19 +74,16 @@ def get_quote_dictionary(quote_container):
     quote_dictionary =  {"quote": quote, "author": author, "tags": tags_list}
     return quote_dictionary
 
-# gets a quote dictionary and appends it to the quotes list
-def append_quote_data_into_quotes_list(quote_container):
-    quote_dictionary = get_quote_dictionary(quote_container)
-    quotes_list.append(quote_dictionary)
-
-# iterates over each container and calls the functions
-def iterate_quote_containers_and_call_append_functions(soup):
+# web crawling starts by calling this function 
+def get_quotes_and_authors_data_on_the_page(soup):
+    quotes_and_authors_data = []
     quote_containers = soup.find_all('div',class_= 'quote')
     for quote_container in quote_containers:
-        append_quote_data_into_quotes_list(quote_container)
-        append_author_data_into_authors_list(quote_container)
-
-
+        quote_dictionary = get_quote_dictionary(quote_container)
+        author_dictionary = get_author_dictionary(quote_container)
+        quotes_and_authors_data.append((quote_dictionary, author_dictionary))
+    return quotes_and_authors_data
+    
 # returns a soup object by parseing the response object into text formart
 def parse_response_to_text_format(response):
     soup = BeautifulSoup(response.content, "lxml")
@@ -110,18 +94,22 @@ def get_response(url):
     response = requests.get(url)
     return response
 
-# web crawling starts by calling this function 
-def start_web_crawl(url):
-    response = get_response(url)
-    soup = parse_response_to_text_format(response)
-    iterate_quote_containers_and_call_append_functions(soup)
-    print("Scraping {} completed".format(response.url))
-    next_page_url = get_next_page_url(soup) 
-    if next_page_url != None:
-        start_web_crawl(next_page_url)
-    else:
-        save_to_json_file(quotes_list, authors_list)
-        return True
+def start_scraping():
+    quotes_list = list()
+    authors_list = list()
+    quotes_and_authors_data = list()
+    url = "http://quotes.toscrape.com/"
+    while url != None:
+        response = get_response(url)
+        soup = parse_response_to_text_format(response) 
+        quotes_and_authors_data.extend(get_quotes_and_authors_data_on_the_page(soup))
+        url = get_next_page_url(soup)
+    for quote_dictionary, author_dictionary in quotes_and_authors_data:
+        quotes_list.append(quote_dictionary)
+        if author_dictionary not in authors_list:
+            authors_list.append(author_dictionary)
+    save_to_json_file(quotes_list, authors_list)
 
-start_web_crawl(quotes_page_url)
+start_scraping()
+
 print("Scraping completed successfully!")
