@@ -34,7 +34,7 @@ def get_author_dictionary(quote_container):
     author_name = replace_speacial_chars_with_spaces(author_name)
     born = born_date +" "+ born_place.strip()
     reference = response.url
-    author_dictionary =  { 'name':author_name, 'born':born, 'reference':reference}
+    author_dictionary = { 'name':author_name, 'born':born, 'reference':reference}
     return author_dictionary
 
 # returns the author reference urlof that quote
@@ -71,11 +71,11 @@ def get_quote_dictionary(quote_container):
     tags_list = get_tags(tags_container)
     quote = remove_unicodes(quote)
     author = replace_speacial_chars_with_spaces(author)
-    quote_dictionary =  {"quote": quote, "author": author, "tags": tags_list}
+    quote_dictionary = {"quote": quote, "author": author, "tags": tags_list}
     return quote_dictionary
 
 # web crawling starts by calling this function 
-def get_quotes_and_authors_data_on_the_page(soup):
+def get_quotes_and_authors_data(soup):
     quotes_and_authors_data = []
     quote_containers = soup.find_all('div',class_= 'quote')
     for quote_container in quote_containers:
@@ -103,7 +103,7 @@ def start_web_scraping():
     while url != None:
         response = get_response(url)
         soup = parse_response_to_text_format(response) 
-        quotes_and_authors_data.extend(get_quotes_and_authors_data_on_the_page(soup))
+        quotes_and_authors_data.extend(get_quotes_and_authors_data(soup))
         url = get_next_page_url(soup)
     for quote_dictionary, author_dictionary in quotes_and_authors_data:
         quotes_list.append(quote_dictionary)
