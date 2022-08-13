@@ -1,21 +1,7 @@
-import json
 import sqlite3
 
 connection = sqlite3.connect('./quotes.db')
 cursor = connection.cursor()
-
-#returns a tag most used by the given author
-def get_most_used_tag_by_author(author_name):
-    most_used_tag_query = """SELECT tag.tag FROM tag 
-        INNER JOIN  quote_tag ON tag.id = quote_tag.tag_id
-        INNER JOIN quote ON quote_tag.quote_id = quote.id 
-        INNER JOIN author ON quote.author_id = author.id 
-        WHERE author.name = ? 
-        GROUP BY tag.tag 
-        ORDER BY count(tag.tag) 
-        DESC LIMIT 1;"""
-    query_result = execute_query(most_used_tag_query,author_name)
-    return query_result[0][0]
 
 #executes the given query and returns the query result
 def execute_query(query,*args):
@@ -31,7 +17,7 @@ def get_quotes_count():
 
 #returns no_of_quotes authorised by a author
 def get_quotes_count_by_author(author):
-    quotes_count_by_author_query="""SELECT COUNT(quote.id) as count 
+    quotes_count_by_author_query="""SELECT COUNT(quote.id) AS count 
         FROM quote INNER JOIN author ON quote.author_id = author.id 
         WHERE author.name = ? """
     query_result = execute_query(quotes_count_by_author_query, author)
@@ -39,19 +25,35 @@ def get_quotes_count_by_author(author):
 
 #returns a tuple of min, max and avg tags count 
 def get_min_max_avg_count_of_tags():
-    min_max_avg_tags_query = """SELECT MIN(tags_count), MAX(tags_count), ROUND(AVG(tags_count)) 
+    min_max_avg_tags_query = """SELECT 
+        MIN(tags_count), MAX(tags_count), ROUND(AVG(tags_count)) 
         FROM (
-            SELECT count(quote_id) as tags_count FROM quote_tag GROUP BY quote_id 
+            SELECT count(quote_id) AS tags_count FROM quote_tag GROUP BY quote_id
             );"""
     query_result = execute_query(min_max_avg_tags_query);
     return query_result[0]
 
 #returns a list of top n authors
 def get_top_n_authors(n): 
-    top_n_authors_query = """SELECT name from author inner join quote on author.id = quote.author_id 
-    group by author.id order by count(quote.id) desc limit ? """
+    top_n_authors_query = """SELECT name from author 
+    INNER JOIN quote ON author.id = quote.author_id 
+    GROUP BY author.id ORDER BY count(quote.id) DESC 
+    LIMIT ? """
     query_result = execute_query(top_n_authors_query,n,)
     return query_result
+
+#returns a tag most used by the given author
+def get_most_used_tag_by_author(author_name):
+    most_used_tag_query = """SELECT tag.tag FROM tag 
+        INNER JOIN  quote_tag ON tag.id = quote_tag.tag_id
+        INNER JOIN quote ON quote_tag.quote_id = quote.id 
+        INNER JOIN author ON quote.author_id = author.id 
+        WHERE author.name = ? 
+        GROUP BY tag.tag 
+        ORDER BY count(tag.tag) 
+        DESC LIMIT 1;"""
+    query_result = execute_query(most_used_tag_query,author_name)
+    return query_result[0][0]
 
 #function calls
 N = 5
