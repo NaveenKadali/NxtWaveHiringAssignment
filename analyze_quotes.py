@@ -4,6 +4,7 @@ import sqlite3
 connection = sqlite3.connect('./quotes.db')
 cursor = connection.cursor()
 
+#returns a tag most used by the given author
 def get_most_used_tag_by_author(author_name):
     most_used_tag_query = """SELECT tag.tag FROM tag 
         INNER JOIN  quote_tag ON tag.id = quote_tag.tag_id
@@ -16,7 +17,7 @@ def get_most_used_tag_by_author(author_name):
     query_result = execute_query(most_used_tag_query,author_name)
     return query_result[0][0]
 
-# executes the given query and returns the query result
+#executes the given query and returns the query result
 def execute_query(query,*args):
     cursor_object = cursor.execute(query,args)
     query_result = cursor_object.fetchall()
@@ -52,7 +53,7 @@ def get_top_n_authors(n):
     query_result = execute_query(top_n_authors_query,n,)
     return query_result
 
-# function calls
+#function calls
 N = 5
 author = 'Albert Einstein'
 quotes_count = get_quotes_count()
@@ -61,12 +62,12 @@ min_max_avg_tags = get_min_max_avg_count_of_tags()
 top_n_authors_list = get_top_n_authors(5)
 most_used_tag_by_author = get_most_used_tag_by_author(author)
 
-# print 
+#print lines to display query results
 print("Total no.of quotes : ",quotes_count)
 print("no.of quotes authored by {}: {}".format(author,no_of_quotes_by_author))
 print("Min, Max and Avg tags on quotations: ", end="")
 print(min_max_avg_tags[0],"|",min_max_avg_tags[1],"|",min_max_avg_tags[2])
-print("Top {} authors is: ".format(N),end = "")
-for author in top_n_authors_list:
+print("Top {} authors are: ".format(N),end = "")
+for author_name in top_n_authors_list:
     print(author[0],end=", ")
-print("\nMost used tag by author are:",most_used_tag_by_author)
+print("\nMost used tag by the author {}: {}".format(author,most_used_tag_by_author))
