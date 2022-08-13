@@ -4,7 +4,7 @@ import json
 import requests
 from bs4 import BeautifulSoup
 
-# saves quotes_list and authors_list into a json file
+#saves quotes_list and authors_list into a json file
 def save_to_json_file(quotes_list, authors_list):
     quotes_dictionary = {"quotes":quotes_list, 'authors':authors_list}
     json_data = json.dumps(quotes_dictionary,ensure_ascii=False ,indent=4)
@@ -12,7 +12,7 @@ def save_to_json_file(quotes_list, authors_list):
     file.write(json_data)
     file.close()
 
-# returns quote dictionaries list and author dictionaries list
+#returns quote dictionaries list and author dictionaries list
 def get_quotes_list_and_authors_list(quotes_page_scraped_data):
     quotes_list, authors_list = [],[]
     for quote_dictionary, author_dictionary in quotes_page_scraped_data:
@@ -22,7 +22,7 @@ def get_quotes_list_and_authors_list(quotes_page_scraped_data):
     return  (quotes_list,authors_list)
 
 
-# returns next page url if next page available else retuns None
+#returns next page url if next page available else retuns None
 def get_next_page_url(quotes_page_parsed_response):
     pager_element = quotes_page_parsed_response.find('ul',class_="pager") 
     next_page_list_element = pager_element.find('li', class_='next')
@@ -33,7 +33,7 @@ def get_next_page_url(quotes_page_parsed_response):
     else:
         return None
 
-# returns author dictionary if already exists in the scraped data
+#returns author dictionary if already exists in the scraped data
 def get_author_data_from_existing_authors(author_reference_url):
     quotes_and_authors_list = get_quotes_list_and_authors_list(quotes_page_scraped_data)
     authors_list = quotes_and_authors_list[1]
@@ -57,7 +57,7 @@ def get_author_dictionary_from_author_page(author_reference_url):
     return author_dictionary
 
 
-# returns a dictionary of author_name, born and reference url
+#returns a dictionary of author_name, born and reference url
 def get_author_dictionary(author_reference_url):
     author_dictionary = get_author_data_from_existing_authors(author_reference_url)
     if author_dictionary is not None:
@@ -66,25 +66,25 @@ def get_author_dictionary(author_reference_url):
         author_dictionary = get_author_dictionary_from_author_page(author_reference_url)
         return author_dictionary
 
-# returns the author reference url  that quote
+#returns the author reference url  that quote
 def get_author_reference_url(quote_container):
     author_href = quote_container.select_one('a')['href']
     author_reference_url = "http://quotes.toscrape.com"+author_href    
     return author_reference_url
 
-# removes special charachters and returns the plane text
+#replaces the special charachters with spaces and returns the plane text
 def replace_speacial_characters_with_space(text):
     replaced_text = re.sub("[^\w\s]", " ", text)
     replaced_text = " ".join(replaced_text.split())
     return replaced_text
 
-# removes unicode values and returns the text
+#removes unicode values and returns the text
 def remove_unicodes(text):
     text = text.encode("ascii","ignore")
     text = text.decode()
     return text
 
-# returns a list of tags of the quote
+#returns a list of tags of the quote
 def get_tags(tags_container):
     tags_list = [] 
     for tag_element in tags_container:
@@ -92,7 +92,7 @@ def get_tags(tags_container):
         tags_list.append(tag)
     return tags_list
 
-# returns a dictionary of quote, author and tags_list 
+#returns a dictionary of quote, author and tags_list 
 def get_quote_dictionary(quote_container):
     quote = quote_container.select_one('div .text').text.strip()
     author = quote_container.select_one('.author').text.strip()
@@ -103,7 +103,7 @@ def get_quote_dictionary(quote_container):
     quote_dictionary = {"quote": quote, "author": author, "tags": tags_list}
     return quote_dictionary
 
-# returns a list of touples with quote_dictionary and author_dictionary
+#returns a list of touples with quote_dictionary and author_dictionary
 def get_quotes_and_authors_data(quotes_page_parsed_response):
     quotes_and_authors_data = []
     quote_containers = quotes_page_parsed_response.find_all('div',class_= 'quote')
@@ -114,12 +114,12 @@ def get_quotes_and_authors_data(quotes_page_parsed_response):
         quotes_and_authors_data.append((quote_dictionary, author_dictionary))
     return quotes_and_authors_data
     
-# returns parsed response for the given resposne object
+#returns parsed response for the given resposne object
 def get_parsed_response(response):
     parsed_response = BeautifulSoup(response.content, "lxml")
     return parsed_response
 
-# returns response object for the requested url
+#returns response object for the requested url
 def get_response(url): 
     response = requests.get(url)
     return response

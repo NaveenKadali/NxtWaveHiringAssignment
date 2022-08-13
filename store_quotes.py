@@ -1,18 +1,17 @@
 import json
 import sqlite3
-from unittest import result
 
 connection = sqlite3.connect("quotes.db")
 cursor = connection.cursor()
 with open("./quotes.json","r") as json_file:
     quotes_data = json.load(json_file)
 
-# executes the given query and returns the cursor object
+#executes the given query and returns the cursor object
 def execute_query(query,*parameters):
     cursor_object = cursor.execute(query,parameters)
     return cursor_object.fetchall()
 
-# inserts quote_id and tag_id into quote_tag junction table
+#inserts quote_id and tag_id into quote_tag junction table
 def insert_into_quote_tag_table(quote, tags_list):
     insert_query = """INSERT INTO quote_tag(quote_id,tag_id) VALUES (?,?);"""
     quote_ids = dict(execute_query("""SELECT quote, id from quote;"""))
@@ -22,13 +21,13 @@ def insert_into_quote_tag_table(quote, tags_list):
         tag_id = tag_ids.get(tag)
         execute_query(insert_query, quote_id, tag_id)
 
-# inserts tag_id and tag into tag table
+#inserts tag_id and tag into tag table
 def insert_into_tag_table(tags_list):
     insert_query = "INSERT INTO tag(tag) VALUES(?)"
     for tag in tags_list:
         execute_query(insert_query,tag)
 
-# inserts quote, author_id into quote table
+#inserts quote, author_id into quote table
 def insert_into_quote_table(quotes_list):
     author_ids = dict(execute_query("SELECT name, id FROM author;"))
     insert_query = """INSERT INTO quote(quote, author_id) VALUES(?,?)"""
@@ -37,14 +36,14 @@ def insert_into_quote_table(quotes_list):
         author_id = author_ids[author_name]
         execute_query(insert_query,  quote, author_id)
 
-# inserts author_data into author table
+#inserts author_data into author table
 def insert_into_author_table(authors_list):
     insert_query = """INSERT INTO author(name,born,reference) VALUES (?, ?, ?)"""
     for author_dictionary in authors_list:
         author_name, author_born, reference_url = author_dictionary.values()
         execute_query(insert_query,author_name, author_born, reference_url)
 
-# creates quote_tag juction table with quote_id and tag_id columns
+#creates quote_tag juction table with quote_id and tag_id columns
 def create_quote_tag_table():
     create_quote_tag_junction_table_query = """CREATE TABLE quote_tag (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, 
@@ -55,7 +54,7 @@ def create_quote_tag_table():
         ) """
     execute_query(create_quote_tag_junction_table_query)
 
-# creates tag table with id, tag columns
+#creates tag table with id, tag columns
 def create_tag_table():
     create_tag_table_query = """CREATE TABLE tag (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, 
@@ -63,7 +62,7 @@ def create_tag_table():
         )""" 
     execute_query(create_tag_table_query)
 
-# creates quote table with id, quote, author_id columns
+#creates quote table with id, quote, author_id columns
 def create_quote_table():
     create_quote_table_query = """CREATE TABLE quote (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, 
@@ -73,7 +72,7 @@ def create_quote_table():
         )"""
     execute_query(create_quote_table_query)
 
-# creates author table with id, name, born and reference columns
+#creates author table with id, name, born and reference columns
 def create_author_table():
     create_author_table_query = """CREATE TABLE author (
          id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, 
@@ -83,12 +82,12 @@ def create_author_table():
          )"""
     execute_query(create_author_table_query)
 
-# deletes existing tables from the database
+#deletes existing tables from the database
 def delete_existing_tables(*table_names):
     for table_name in table_names:
         execute_query("DROP TABLE IF EXISTS {}".format(table_name))
 
-# retuns a list of all unique tags
+#retuns a list of all unique tags
 def get_all_unique_tags(quotes_list):
     tags_list = []
     for quote_dictionary in quotes_list:
@@ -96,7 +95,7 @@ def get_all_unique_tags(quotes_list):
     tags_list = list(set(tags_list))
     return sorted(tags_list)
 
-# organizing data into quotee.db starts from this function
+#organizing data into quotee.db starts from this function
 def organize_quotes_data_into_db():
     authors_list = quotes_data["authors"]
     quotes_list = quotes_data["quotes"]
